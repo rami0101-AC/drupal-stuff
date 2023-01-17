@@ -1,0 +1,53 @@
+<?php
+
+// Create language variable
+function HOOK_preprocess_block(&$variables) {
+    $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $variables['lang'] = $language;
+}
+
+// Custom templated for webforms, fieldsets and paragraphs
+function HOOK_theme_suggestions_alter(&$suggestions, &$variables = [], &$hook = NULL) {
+
+    if ($hook == 'fieldset') {
+
+        if (isset($variables['element'])) {
+
+            if (isset($variables['element']['#webform_element']) && $variables['element']['#webform_element'] == true) {
+                $suggestions[] = $hook . '__webform';
+                $suggestions[] = $hook . '__webform_element';
+                $suggestions[] = $hook . '__webform_element__' . $variables['element']['#webform'];
+                $suggestions[] = $hook . '__webform_element__' . $variables['element']['#webform_key'];
+            }
+        }
+    }
+
+    if ($hook == 'webform') {
+        /** @var \Drupal\webform\WebformInterface $webform */
+        if (isset($variables['element']['#webform_id'])) {
+
+            $webform = \Drupal::service('entity_type.manager')->getStorage('webform')->load($variables['element']['#webform_id']);
+
+            if (isset($webform)) {
+
+                if (!empty($webform->toArray()['category'])) {
+                    $category = $webform->toArray()['category'];
+                    $catName = Html::cleanCssIdentifier(strtolower($category));
+                    $category = str_replace('-', '_', $catName);
+
+                    $suggestions[] = $hook . '__' . $category;
+                    $suggestions[] = $hook . '__' . $category . '__' . $variables['element']['#webform_id'];
+                }
+            }
+        }
+    }
+
+    if ($hook == 'paragraph') {
+        $is_front =
+            \Drupal::service('path.matcher')->isFrontPage();
+
+        if (isset($suggestions[1]) && $is_front) {
+            $suggestions[] = $suggestions[1] . '__home_page';
+        }
+    }
+}

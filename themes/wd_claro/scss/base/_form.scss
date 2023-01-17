@@ -1,0 +1,30 @@
+.member-panel {
+  > .views-element-container {
+    border: 1px solid var(--colorGinText);
+    border-radius: 5px;
+    padding: 14px 25px;
+    margin-bottom: 20px;
+    background-color: var(--colorGinLayerBackground);
+  }
+
+  .sticky-stuff {
+    > .views-element-container {
+      border: 1px solid var(--colorGinText);
+      border-radius: 5px;
+      padding: 14px 25px;
+      margin-bottom: 20px;
+      background-color: var(--colorGinLayerBackground);
+    }
+    position: sticky;
+    top: 140px;
+  }
+  .views-field {
+    padding: 10px 0;
+  }
+  .horizontal-tabs {
+    margin-top: 15px;
+  }
+  .horizontal-tabs-panes {
+    padding: 20px 0 0;
+  }
+}

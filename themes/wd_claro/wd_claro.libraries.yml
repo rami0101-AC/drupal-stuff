@@ -1,0 +1,15 @@
+global-styling:
+  css:
+    component:
+      css/style.css: {}
+
+global-scripts:
+  js:
+    js/scripts.min.js: {}
+    vendor/equalize/js/equalize.min.js: {}
+    vendor/jquery-match-height/dist/jquery.matchHeight-min.js: {}
+
+bootstrap:
+  css:
+    theme:
+      vendor/bootstrap/css/bootstrap-grid.css: {}

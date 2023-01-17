@@ -1,0 +1,256 @@
+<?php
+
+use \Drupal\Core\Form\FormStateInterface;
+use \Drupal\webform\Entity\WebformSubmission;
+use \Drupal\webform\WebformSubmissionInterface;
+use \Drupal\user\Entity\User;
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter for blocks.
+ */
+function wd_claro_theme_suggestions_block_alter(&$suggestions, $variables) {
+
+  // Load theme suggestions for blocks from parent theme.
+  foreach ($suggestions as &$suggestion) {
+    $suggestion = str_replace('wd_claro_', 'claro_', $suggestion);
+  }
+}
+
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter for blocks.
+ */
+function wd_claro_theme_suggestions_details_alter(&$suggestions, $variables) {
+
+  if (isset($variables['element']['title']['#theme'])) {
+    $name = $variables['element']['title']['#theme'];
+    $suggestions[] = 'details__' . $name;
+  } elseif (isset($variables['element']['text']['#theme'])) {
+    $name = $variables['element']['text']['#theme'];
+    $suggestions[] = 'details__' . $name;
+  } elseif (isset($variables['element']['markup']['#theme'])) {
+    $name = $variables['element']['markup']['#theme'];
+    $suggestions[] = 'details__' . $name;
+  }
+}
+
+
+
+
+
+
+function wd_claro_preprocess_html(&$variables) {
+  $node = \Drupal::routeMatch()->getParameter('node');
+  // dump($node);
+  if ($node) {
+    // add node id to body class
+    $variables['attributes']['class'][] = 'node-' . $node->id();
+  }
+  // add language code to body class
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['lang'] = $language;
+}
+
+
+
+function _wd_claro_preprocess_webform(&$variables) {
+  $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+  $variables['languages'] = $language;
+  $config = \Drupal::config('system.site');
+  $variables['site_name'] = $config->get('name');
+
+  $variables['submission_id'] = \Drupal::routeMatch()->getParameter('sid');
+  if ($variables['submission_id']) {
+
+    $variables['webform_submission'] = WebformSubmission::load($variables['submission_id']);
+
+    $variables['submission_data'] = $variables['webform_submission']->getData();
+    $value = $variables['submission_data'];
+
+    $variables['submission_name'] = $value['first_name'] . ' ' . $value['last_name'];
+    $createdDate = $variables['webform_submission']->getcompletedTime();
+    $variables['submission_date'] = date('m/d/Y', $createdDate);
+
+    $langCode = $variables['webform_submission']->getLangCode();
+
+    switch ($langCode) {
+      case 'en':
+        $slang = t('English');
+        break;
+      case 'fr':
+        $slang = t('French');
+        break;
+      default:
+        $slang = t('Undefined');
+        break;
+    }
+    $variables['submission_language'] = $slang;
+
+    $ogData = $variables['webform_submission']->getOriginalData();
+    $variables['submission_type'] = ($ogData['submission_behalf']) ?? '';
+  }
+}
+
+function _wd_claro_preprocess_links__language_block(&$variables) {
+  foreach ($variables['links'] as $i => $link) {
+    if ($variables['links'][$i]['link']['#title'] == 'English') {
+      $variables['links'][$i]['link']['#options']['attributes']['title'] = 'English';
+      $variables['links'][$i]['link']['#title'] = 'EN';
+    }
+    if ($variables['links'][$i]['link']['#title'] == 'Français') {
+      $variables['links'][$i]['link']['#options']['attributes']['title'] = 'Français';
+      $variables['links'][$i]['link']['#title'] = 'FR';
+    }
+  }
+}
+
+
+function _wd_claro_preprocess_links(&$variables) {
+  $lang = \Drupal::languageManager()->getCurrentLanguage()->getName();
+  if ($lang == 'English') {
+    $lg = 'en';
+  } else if ($lang == 'French') {
+    $lg = 'fr';
+  }
+  $variables['current_language'] = $lg;
+}
+
+/**
+ * Implements hook_template_preprocess_default_variables_alter().
+ *
+ * @see user_user_login()
+ * @see user_user_logout()
+ */
+function _wd_claro_preprocess_default_variables_alter(&$variables) {
+  $user = \Drupal::currentUser();
+
+  $variables['user'] = clone $user;
+  // Remove password and session IDs, since themes should not need nor see them.
+  unset($variables['user']->pass, $variables['user']->sid, $variables['user']->ssid);
+
+  $variables['is_admin'] = $user->hasPermission('access administration pages');
+  $variables['logged_in'] = $user->isAuthenticated();
+}
+
+function _wd_claro_preprocess_details(&$variables) {
+
+  $variables['keyid'] = ($variables['element']['#webform_key']) ?? '';
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function wd_claro_suggestions_form_alter(array &$suggestions, array $variables) {
+  // $suggestions[] = 'form__' . str_replace('-', '_', $variables['element']['#id']);
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  // dump($route_name, $variables);
+  // $suggestions[] = 'form__' . str_replace('-', '_', $variables['element']['#id']);
+
+  if ($route_name == "page_manager.page_view_wd_claro_member_profile_wd_claro_member_profile-panels_variant-0") {
+    $suggestions[] = 'manage_member__form__' . str_replace('-', '_', $variables['element']['#id']);
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_form_alter().
+ */
+function wd_claro_theme_suggestions_form_alter(array &$suggestions, array $variables) {
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  $params = $parameters = \Drupal::routeMatch()->getParameters();
+
+  if (is_object($params->get('page_manager_page'))) {
+    $suggestions[] = 'form__' . $params->get('page_manager_page')->id() . str_replace('-', '_', $variables['element']['#id']);
+  }
+
+  return $suggestions;
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function wd_claro_suggestions_input_alter(array &$suggestions, array $variables) {
+
+  if (isset($variables['element']) && isset($variables['element']['#id'])) {
+    $suggestions[] = 'input__' . str_replace('-', '_', $variables['element']['#id']);
+  }
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function wd_claro_theme_suggestions_input_alter(array &$suggestions, array $variables) {
+  $element = $variables['element'];
+  // dump($element['#webform']);
+  if (isset($variables['element']) && isset($variables['element']['#id'])) {
+    $suggestions[] = 'input__' . $element['#type'] . '__' . str_replace('-', '_', $variables['element']['#id']);
+  }
+  if (isset($element['#webform'])) {
+    $suggestions[] = 'input__' . str_replace('-', '_', $element['#webform']);
+    $suggestions[] = 'input__' . $element['#type'] . '__' . str_replace('-', '_', $element['#webform']);
+  }
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function _wd_claro_theme_suggestions_select_alter(array &$suggestions, array $variables) {
+  $element = $variables['element'];
+  // dump($element['#webform']);
+  if (isset($variables['element']) && isset($variables['element']['#id'])) {
+    $suggestions[] = $element['#type'] . '__' . str_replace('-', '_', $variables['element']['#id']);
+  }
+
+  if (isset($element['#webform'])) {
+    $suggestions[] = str_replace('-', '_', $element['#webform']);
+    $suggestions[] = $element['#type'] . '__' . str_replace('-', '_', $element['#webform']);
+  }
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function _wd_claro_theme_suggestions_container_alter(array &$suggestions, array $variables) {
+  $element = $variables['element'];
+  if (isset($element['#webform'])) {
+    $suggestions[] = str_replace('-', '_', $element['#webform']);
+    $suggestions[] = $element['#type'] . '__' . str_replace('-', '_', $element['#webform']);
+  }
+  if (isset($variables['element']) && isset($variables['element']['#id'])) {
+    $suggestions[] = $element['#type'] . '__' . str_replace('-', '_', $variables['element']['#id']);
+  }
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function _wd_claro_theme_suggestions_views_view_field_alter(array &$suggestions, array $variables) {
+  if (isset($variables['field']) && $variables['field']->field_alias == 'webform_submission_field_nh_intake_form_trends_value') {
+    $suggestions = ['views__' . str_replace('webform_submission_field_', '', $variables['field']->field_alias)];
+    // dump($suggestions);
+  }
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function _wd_claro_preprocess_views_view_field(&$variables) {
+
+  $fieldID = false;
+
+  if (isset($variables['field']) && isset($variables['field']->field_alias)) {
+    $fieldID = $variables['field']->field_alias;
+  }
+
+  $variables['field_id'] = $fieldID;
+}
+
+/**
+ * Implements hook_suggestions_form_alter().
+ */
+function _wd_claro_preprocess_container(&$variables) {
+  $user = User::load(\Drupal::currentUser()->id());
+
+  $userName = $user->get('field_first_name')->value . ' ' . $user->get('field_last_name')->value;
+
+  $variables['user_name'] = $userName;
+}

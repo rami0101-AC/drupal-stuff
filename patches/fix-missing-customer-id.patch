@@ -1,0 +1,18 @@
+diff --git a/src/Plugin/Commerce/PaymentGateway/ExpressCheckoutSubscriptions.php b/src/Plugin/Commerce/PaymentGateway/ExpressCheckoutSubscriptions.php
+index 199f73a9c..6aeeac81f 100644
+--- a/src/Plugin/Commerce/PaymentGateway/ExpressCheckoutSubscriptions.php
++++ b/src/Plugin/Commerce/PaymentGateway/ExpressCheckoutSubscriptions.php
+@@ -156,6 +156,7 @@ public function getExpressCheckoutDetails(OrderInterface $order) {
+    */
+   public function doExpressCheckoutDetails(OrderInterface $order) {
+     // Build NVP data for PayPal API request.
++    $this->currentUser = $order->getCustomer();
+     $account = User::load($this->currentUser->id());
+     $order_express_checkout_data = $order->getData('paypal_express_checkout');
+     $amount = $this->rounder->round($order->getTotalPrice());
+@@ -222,5 +223,4 @@ public function onReturn(OrderInterface $order, Request $request) {
+ 
+     $payment->save();
+   }
+-
+ }

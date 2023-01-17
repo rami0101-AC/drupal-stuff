@@ -1,0 +1,14 @@
+diff --git a/src/Plugin/Alter/ThemeSuggestions.php b/src/Plugin/Alter/ThemeSuggestions.php
+index 50983cc9..0f4846a1 100644
+--- a/src/Plugin/Alter/ThemeSuggestions.php
++++ b/src/Plugin/Alter/ThemeSuggestions.php
+@@ -21,7 +21,8 @@ class ThemeSuggestions extends PluginBase implements AlterInterface {
+    *
+    * @var array
+    */
+-  protected $bootstrapPanelTypes = ['details', 'fieldset'];
++  // protected $bootstrapPanelTypes = ['details', 'fieldset'];
++  protected $bootstrapPanelTypes = ['details'];
+ 
+   /**
+    * An element object provided in the variables array, may not be set.

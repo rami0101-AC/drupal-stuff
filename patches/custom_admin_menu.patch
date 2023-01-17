@@ -1,0 +1,28 @@
+diff --git a/config/optional/system.menu.custom_admin_menu.yml b/config/optional/system.menu.custom_admin_menu.yml
+index c7fbdb21f..7cd17c79a 100644
+--- a/config/optional/system.menu.custom_admin_menu.yml
++++ b/config/optional/system.menu.custom_admin_menu.yml
+@@ -1,7 +1,7 @@
+-langcode: fr
++langcode: en
+ status: true
+ dependencies: {  }
+-id: custom_admin_menu
++id: custom-admin-menu
+ label: Custom Admin Menu
+ description: 'Custom Admin Menu'
+-locked: true
++locked: false
+diff --git a/src/Service/CustomAdminMenuManager.php b/src/Service/CustomAdminMenuManager.php
+index 65564e830..4349d77d4 100644
+--- a/src/Service/CustomAdminMenuManager.php
++++ b/src/Service/CustomAdminMenuManager.php
+@@ -36,7 +36,7 @@ class CustomAdminMenuManager implements TrustedCallbackInterface {
+    *
+    * @const string
+    */
+-  const CUSTOM_MENU_NAME = 'custom_admin_menu';
++  const CUSTOM_MENU_NAME = 'custom-admin-menu';
+ 
+   /**
+    * Menu link tree.

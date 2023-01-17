@@ -1,0 +1,13 @@
+diff --git a/src/Plugin/Condition/PanelsTitle.php b/src/Plugin/Condition/PanelsTitle.php
+index c44b8c13..c81a2a01 100644
+--- a/src/Plugin/Condition/PanelsTitle.php
++++ b/src/Plugin/Condition/PanelsTitle.php
+@@ -113,7 +113,7 @@ public function evaluate() {
+       if ($variant->access('view')) {
+         /** @var \Drupal\ctools\Plugin\BlockVariantInterface $variant_plugin */
+         $variant_plugin = $variant->getVariantPlugin();
+-        if ($variant_plugin->pluginId != 'http_status_code') {
++        if ($variant_plugin->pluginId != 'http_status_code' && $variant_plugin->pluginId != 'layout_builder') {
+           foreach ($variant_plugin->getRegionAssignments() as $blocks) {
+             /** @var \Drupal\Core\Block\BlockPluginInterface[] $blocks */
+             foreach ($blocks as $block) {
